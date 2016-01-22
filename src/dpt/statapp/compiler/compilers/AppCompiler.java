@@ -32,8 +32,14 @@
 package dpt.statapp.compiler.compilers;
 
 import dpt.statapp.compiler.config.Config;
+import dpt.statapp.compiler.helper.DirCopyVisitor;
 import dpt.statapp.compiler.helper.FileHelpers;
 import dpt.statapp.compiler.iface.Compiler;
+import dpt.statapp.compiler.output.ErrorFormatter;
+import dpt.statapp.compiler.output.ErrorType;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * This class compiles the complete application to static
@@ -79,6 +85,21 @@ public class AppCompiler {
         /* Delete the temporary directory */
         FileHelpers.deleteDirectoryAndContents(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.TEMP_DIRECTORY);
         
+        /* Copy image, locale and licence folders */
+        try {
+            FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.IMAGE_DIRECTORY);
+            Files.walkFileTree(Paths.get(filepath + Config.IMAGE_DIRECTORY), new DirCopyVisitor(Paths.get(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.IMAGE_DIRECTORY)));
+            
+            FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY);
+            Files.walkFileTree(Paths.get(filepath + Config.LOCALES_DIRECTORY), new DirCopyVisitor(Paths.get(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY)));
+            
+            FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LICENCE_DIRECTORY);
+            Files.walkFileTree(Paths.get(filepath + Config.LICENCE_DIRECTORY), new DirCopyVisitor(Paths.get(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LICENCE_DIRECTORY)));
+        } catch (IOException ex) {
+            ErrorFormatter.writeStringError(ErrorType.WARNING, "Could not copy static content directories to app:");
+            ex.printStackTrace(System.err);
+        }
+         
         return true;
     }
 }

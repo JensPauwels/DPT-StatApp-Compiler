@@ -80,7 +80,7 @@ public class ScriptCompiler implements Compiler{
     /* The resulting list containing all scripts which are used in every single document */
     List<String> globalScripts = new ArrayList<>();
     
-    /* Maps the filename of a script to the filepath and required order, the higher the number the higher the order. */
+    /* Maps the filename of a script to the filepath and required order, the lowest number is first in the list */
     Map<String, Path> scriptPathMap = new HashMap<>();
     Map<String, Integer> scriptOrderMap = new HashMap<>();
     
@@ -127,7 +127,17 @@ public class ScriptCompiler implements Compiler{
                     /* The file is found, add it to this files unique set */
                     fileScripts.add(stmt.getArgs()[0]); 
                     allScripts.add(stmt.getArgs()[0]);
-                    scriptOrderMap.put(stmt.getArgs()[0], Integer.parseInt(stmt.getArgs()[1]));
+                    
+                    /* Keep the lowest order */
+                    int order = Integer.parseInt(stmt.getArgs()[1]);
+                    if(scriptOrderMap.containsKey(stmt.getArgs()[0])) {
+                        if(scriptOrderMap.get(stmt.getArgs()[0]) > order) {
+                            scriptOrderMap.put(stmt.getArgs()[0], order);
+                        }
+                    } else {
+                        scriptOrderMap.put(stmt.getArgs()[0], order);
+                    }
+                    
                 }
             } catch(StatementParseException ex) {
                 ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not parse HTML file: " + ex.getMessage());
@@ -304,17 +314,42 @@ public class ScriptCompiler implements Compiler{
         StringBuilder globalScriptDocument = new StringBuilder();
 
         try {
-            for(String script : allScripts) {
+            List<String> sortedScripts = new ArrayList<>();
+            
+            /* Sort the global javascripts */
+            while(!scriptOrderMap.isEmpty()) {
+                int smallestkey = Integer.MAX_VALUE;
+                String smallestscript = null;
+                
+                /* Search for the smallest script */
+                for(String script : scriptOrderMap.keySet()) {
+                    int order = scriptOrderMap.get(script);
+                    if(smallestkey >=  order) {
+                        smallestkey = order;
+                        smallestscript = script;
+                    }
+                }
+                
+                /* Add the smallest global script to the sortedScripts list and remove it from the map */
+                scriptOrderMap.remove(smallestscript);
+                if(globalScripts.contains(smallestscript)) {
+                    sortedScripts.add(smallestscript);
+                    allScripts.remove(smallestscript);
+                    OutFormatter.printfLn("Added script '%s' with order '%d' to the global script file", smallestscript, smallestkey);
+                }
+            }
+            
+            // Build the global script document 
+            for(String script : sortedScripts) {
                 /* Read the script file */
                 String contents = FileHelpers.fileToString(scriptPathMap.get(script));
-
-                if(globalScripts.contains(script)) {
-                    /* The contents of this script should go to the combined document */
-                    globalScriptDocument.append(contents);
-                } else {
-                    /* The contents of this script should go to a separate document */
-                    Files.write(new File(outdir.toFile(), script).toPath(), contents.getBytes());
-                }
+                globalScriptDocument.append(contents);
+            }
+            
+            for(String script : allScripts) {
+                /* The contents of this script should go to a separate document */
+                String contents = FileHelpers.fileToString(scriptPathMap.get(script));
+                Files.write(new File(outdir.toFile(), script).toPath(), contents.getBytes());
             }
 
             /* Write global script file */

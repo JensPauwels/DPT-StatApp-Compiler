@@ -74,7 +74,9 @@ website even more.
 
 As the order of javascript includes is very important a number including 
 the order is required. This way you can tell the compiler which script file it
-should place first in the combined script file. 
+should place first in the combined script file. The lowest number is placed
+first. If the compiler encounters different sort orders in multiple files
+it will pick the lowest encountered order.
 
 When you are ready run the following command:
 

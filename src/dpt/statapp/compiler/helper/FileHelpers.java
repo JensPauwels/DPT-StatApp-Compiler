@@ -59,7 +59,8 @@ public class FileHelpers {
         Path dir = Paths.get(filepath);
         
         if(!Files.isDirectory(dir)) {
-            ErrorFormatter.writeFormattedStringErrorLn(ErrorType.WARNING, "Directory '%s' expected but not found.", filepath);
+            
+            ErrorFormatter.writeFormattedStringErrorLn(ErrorType.WARNING, "Tried to open directory '%s' but it could not be found", filepath);
             return null;
         }
         
