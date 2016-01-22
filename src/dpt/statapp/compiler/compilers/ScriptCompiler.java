@@ -41,6 +41,9 @@ import dpt.statapp.compiler.statement.StatementParser;
 import dpt.statapp.compiler.statement.StatementType;
 import dpt.statapp.compiler.iface.Compiler;
 import dpt.statapp.compiler.output.OutFormatter;
+import dpt.statapp.compressor.Compressor;
+import dpt.statapp.compressor.HtmlCompressor;
+import dpt.statapp.compressor.JavascriptCompressor;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -229,7 +232,12 @@ public class ScriptCompiler implements Compiler{
         
         /* Now save the file in the output directory */
         try {
-            Files.write(new File(outdir.toFile(), source.getFileName().toString()).toPath(), result.toString().getBytes());
+            /* Compress HTML */
+            HtmlCompressor comp = new HtmlCompressor();
+            OutFormatter.printLn("Compressing HTML " + source.getFileName().toString());
+            String compressed = comp.compress(result.toString());
+            
+            Files.write(new File(outdir.toFile(), source.getFileName().toString()).toPath(), compressed.getBytes());
         } catch (IOException ex) {
             ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not save result of HTML parse to output folder:");
             ex.printStackTrace(System.err);
@@ -346,14 +354,23 @@ public class ScriptCompiler implements Compiler{
                 globalScriptDocument.append(contents);
             }
             
+            Compressor comp = new JavascriptCompressor();
+            
             for(String script : allScripts) {
                 /* The contents of this script should go to a separate document */
                 String contents = FileHelpers.fileToString(scriptPathMap.get(script));
-                Files.write(new File(outdir.toFile(), script).toPath(), contents.getBytes());
+                
+                /* Compress Javascript */
+                OutFormatter.printLn("Compressing Javascript " + script);
+                String compressed = comp.compress(contents);
+                
+                Files.write(new File(outdir.toFile(), script).toPath(), compressed.getBytes());
             }
 
             /* Write global script file */
-            Files.write(new File(outdir.toFile(), "globalscript.js").toPath(), globalScriptDocument.toString().getBytes());
+            OutFormatter.printLn("Compressing Javascript globalscript.js");
+            String compressed = comp.compress(globalScriptDocument.toString());
+            Files.write(new File(outdir.toFile(), "globalscript.js").toPath(), compressed.getBytes());
         } catch (IOException ex) {
             ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not save script to output folder:");
             ex.printStackTrace(System.err);

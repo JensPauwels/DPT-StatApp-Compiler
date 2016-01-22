@@ -41,6 +41,8 @@ import dpt.statapp.compiler.statement.StatementParser;
 import dpt.statapp.compiler.statement.StatementType;
 import dpt.statapp.compiler.iface.Compiler;
 import dpt.statapp.compiler.output.OutFormatter;
+import dpt.statapp.compressor.Compressor;
+import dpt.statapp.compressor.CssCompressor;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -310,6 +312,8 @@ public class StyleCompiler implements Compiler{
         StringBuilder globalStyleDoc = new StringBuilder();
 
         try {
+            Compressor compressor = new CssCompressor();
+            
             for(String style : allStyles) {
                 /* Read the style file */
                 String contents = FileHelpers.fileToString(stylePathMap.get(style));
@@ -319,12 +323,14 @@ public class StyleCompiler implements Compiler{
                     globalStyleDoc.append(contents);
                 } else {
                     /* The contents of this style should go to a separate document */
-                    Files.write(new File(outdir.toFile(), style).toPath(), contents.getBytes());
+                    String compressed = compressor.compress(contents);
+                    Files.write(new File(outdir.toFile(), style).toPath(), compressed.getBytes());
                 }
             }
 
             /* Write global style file */
-            Files.write(new File(outdir.toFile(), "globalstyle.css").toPath(), globalStyleDoc.toString().getBytes());
+            String compressed = compressor.compress(globalStyleDoc.toString());
+            Files.write(new File(outdir.toFile(), "globalstyle.css").toPath(), compressed.getBytes());
         } catch (IOException ex) {
             ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not save style to output folder:");
             ex.printStackTrace(System.err);

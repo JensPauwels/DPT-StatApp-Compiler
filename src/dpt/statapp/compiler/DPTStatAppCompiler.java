@@ -71,6 +71,7 @@ public class DPTStatAppCompiler {
                     System.exit(comp.compileApp() ? 0 : 1);
                     break;
                 case "clean" : 
+                    System.out.println("Just delete the contents of the app folder for now.");
                     break;
                 default:
                     printUsage();

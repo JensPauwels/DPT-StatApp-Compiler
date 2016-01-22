@@ -37,8 +37,14 @@ import dpt.statapp.compiler.helper.FileHelpers;
 import dpt.statapp.compiler.iface.Compiler;
 import dpt.statapp.compiler.output.ErrorFormatter;
 import dpt.statapp.compiler.output.ErrorType;
+import dpt.statapp.compiler.output.OutFormatter;
+import dpt.statapp.compressor.Compressor;
+import dpt.statapp.compressor.JavascriptCompressor;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -85,16 +91,34 @@ public class AppCompiler {
         /* Delete the temporary directory */
         FileHelpers.deleteDirectoryAndContents(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.TEMP_DIRECTORY);
         
-        /* Copy image, locale and licence folders */
+        /* Copy image and licence folders */
         try {
-            FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.IMAGE_DIRECTORY);
-            Files.walkFileTree(Paths.get(filepath + Config.IMAGE_DIRECTORY), new DirCopyVisitor(Paths.get(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.IMAGE_DIRECTORY)));
+            Path dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.IMAGE_DIRECTORY);
+            Files.walkFileTree(Paths.get(filepath + Config.IMAGE_DIRECTORY), new DirCopyVisitor(dir));
             
-            FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY);
+            dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LICENCE_DIRECTORY);
+            Files.walkFileTree(Paths.get(filepath + Config.LICENCE_DIRECTORY), new DirCopyVisitor(dir));
+            
+            /* Copy and compress locales */
+            dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY);
+            
+            Compressor compressor = new JavascriptCompressor();
+            
+            try(DirectoryStream<Path> localeStream = Files.newDirectoryStream(Paths.get(filepath + Config.LOCALES_DIRECTORY))) {      
+                /* Copy and compress all javascript locales */
+                for(Path locale :  localeStream) {
+                    OutFormatter.printfLn("Compressing locale: %s", locale.getFileName().toString());
+                    String localeContents = FileHelpers.fileToString(locale);
+                    localeContents = compressor.compress(localeContents);
+                    Files.write(new File(dir.toFile(), locale.getFileName().toString()).toPath(), localeContents.getBytes());
+                }
+            } catch (Exception ex) {
+                ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not copy all locale files.");
+                ex.printStackTrace(System.err);
+                return false;
+            }
+            
             Files.walkFileTree(Paths.get(filepath + Config.LOCALES_DIRECTORY), new DirCopyVisitor(Paths.get(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY)));
-            
-            FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LICENCE_DIRECTORY);
-            Files.walkFileTree(Paths.get(filepath + Config.LICENCE_DIRECTORY), new DirCopyVisitor(Paths.get(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LICENCE_DIRECTORY)));
         } catch (IOException ex) {
             ErrorFormatter.writeStringError(ErrorType.WARNING, "Could not copy static content directories to app:");
             ex.printStackTrace(System.err);
