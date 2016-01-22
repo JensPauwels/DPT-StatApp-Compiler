@@ -202,7 +202,7 @@ public class ScriptCompiler implements Compiler{
                             cursor = closing_tag + 2;
                         } else {
                             /* Import global script */
-                            String scriptContent = "<script src=\"/js/globalscript.js\"></script>";
+                            String scriptContent = "<script src=\"" + Config.URI_FIRST_SLASH + Config.SCRIPT_DIRECTORY + "/globalscript.js\"></script>";
                             result.append(sourceContent.substring(cursor, matchIndex - 1));
                             result.append(scriptContent);
                             cursor = closing_tag + 2;
@@ -210,7 +210,7 @@ public class ScriptCompiler implements Compiler{
                         }
                     } else {
                         /* This is a page specific script, import directly */
-                        String scriptContent = "<script src=\"/js/" + stmt.getArgs()[0] + "\">";
+                        String scriptContent = "<script src=\"" + Config.URI_FIRST_SLASH + Config.SCRIPT_DIRECTORY + "/" + stmt.getArgs()[0] + "\"></script>";
                         result.append(sourceContent.substring(cursor, matchIndex - 1));
                         result.append(scriptContent);
                         cursor = closing_tag + 2;

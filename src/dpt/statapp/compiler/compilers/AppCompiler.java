@@ -99,6 +99,9 @@ public class AppCompiler {
             dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LICENCE_DIRECTORY);
             Files.walkFileTree(Paths.get(filepath + Config.LICENCE_DIRECTORY), new DirCopyVisitor(dir));
             
+            dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.FONT_DIRECTORY);
+            Files.walkFileTree(Paths.get(filepath + Config.FONT_DIRECTORY), new DirCopyVisitor(dir));
+            
             /* Copy and compress locales */
             dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY);
             

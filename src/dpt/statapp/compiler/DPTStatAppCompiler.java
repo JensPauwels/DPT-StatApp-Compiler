@@ -123,5 +123,4 @@ public class DPTStatAppCompiler {
         System.out.println("");
         System.out.println("\t clean: clean the complete app directory");
     }
-    
 }

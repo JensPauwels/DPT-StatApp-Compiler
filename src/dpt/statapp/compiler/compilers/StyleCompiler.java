@@ -198,7 +198,7 @@ public class StyleCompiler implements Compiler{
                             cursor = closing_tag + 2;
                         } else {
                             /* Import global style */
-                            String styleContent = "<link rel=\"stylesheet\" href=\"/" + Config.STYLE_DIRECTORY + "/globalstyle.css\">";
+                            String styleContent = "<link rel=\"stylesheet\" href=\"" + Config.URI_FIRST_SLASH + Config.STYLE_DIRECTORY + "/globalstyle.css\">";
                             result.append(sourceContent.substring(cursor, matchIndex - 1));
                             result.append(styleContent);
                             cursor = closing_tag + 2;
@@ -206,7 +206,7 @@ public class StyleCompiler implements Compiler{
                         }
                     } else {
                         /* This is a page specific style, import directly */
-                        String styleContent = "<link rel=\"stylesheet\" href=\"/" + Config.STYLE_DIRECTORY + "/" + stmt.getArgs()[0] + "\">";
+                        String styleContent = "<link rel=\"stylesheet\" href=\"" + Config.URI_FIRST_SLASH + Config.STYLE_DIRECTORY + "/" + stmt.getArgs()[0] + "\">";
                         result.append(sourceContent.substring(cursor, matchIndex - 1));
                         result.append(styleContent);
                         cursor = closing_tag + 2;

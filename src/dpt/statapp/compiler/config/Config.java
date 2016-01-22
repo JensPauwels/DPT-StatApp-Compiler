@@ -46,6 +46,10 @@ public class Config {
     public static String LICENCE_DIRECTORY = "licences";
     public static String PAGES_DIRECTORY = "html";
     public static String PARTIAL_DIRECTORY = "partial";
+    public static String FONT_DIRECTORY = "fonts";
     
     public static String TEMP_DIRECTORY = "tempOutputDirectory";
+    
+    public static String URI_FIRST_SLASH = "";
+    
 }

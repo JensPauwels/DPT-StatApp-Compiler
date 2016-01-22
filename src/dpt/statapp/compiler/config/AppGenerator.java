@@ -114,6 +114,11 @@ public class AppGenerator {
             return false;
         }
         
+        /* Create fonts directory */
+        if(!createDirectory("fonts", Config.FONT_DIRECTORY)) {
+            return false;
+        }
+        
         OutFormatter.printfLn("DPT-StatApp created in '%s'", filepath);
         return true;
     }
