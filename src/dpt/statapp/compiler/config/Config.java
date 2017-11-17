@@ -37,7 +37,6 @@ package dpt.statapp.compiler.config;
  */
 public class Config {
     public static String VERSION_STRING = "0.1 alpha";
-    
     public static String SCRIPT_DIRECTORY = "script";
     public static String OUTPUT_DIRECTORY = "app";
     public static String STYLE_DIRECTORY = "css";
@@ -47,9 +46,7 @@ public class Config {
     public static String PAGES_DIRECTORY = "html";
     public static String PARTIAL_DIRECTORY = "partial";
     public static String FONT_DIRECTORY = "fonts";
-    
     public static String TEMP_DIRECTORY = "tempOutputDirectory";
-    
     public static String URI_FIRST_SLASH = "";
     
     /**
