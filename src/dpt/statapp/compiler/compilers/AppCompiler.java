@@ -55,13 +55,17 @@ import java.nio.file.Paths;
 public class AppCompiler {
     /* The working directory of the DPTStatApp */
     protected String filepath;
+    protected Boolean shouldCompress;
     
     /**
      * Construct a new AppCompiler instance. 
      * @param filepath the filepath to work in. 
      */
-    public AppCompiler(String filepath) {
+    public AppCompiler(String filepath, Boolean shouldCompress) {
+        this.shouldCompress = shouldCompress;
         this.filepath = filepath;
+
+        System.out.println(shouldCompress+ "compressing");
     }
     
     /**
@@ -83,7 +87,7 @@ public class AppCompiler {
         }
         
         /* Execute stage 3 of the compiler and parse scripts */
-        Compiler scriptComp = new ScriptCompiler(filepath);
+        Compiler scriptComp = new ScriptCompiler(filepath, shouldCompress);
         if(!scriptComp.run()) {
             return false;
         }

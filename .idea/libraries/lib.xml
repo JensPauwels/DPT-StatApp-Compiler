@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/lib/htmlcompressor-1.5.3-site.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/jsp-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/velocity-1.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/htmlcompressor-1.5.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/junit-4.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/htmlcompressor-1.5.3-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/htmlcompressor-1.5.3-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/yuicompressor-2.4.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

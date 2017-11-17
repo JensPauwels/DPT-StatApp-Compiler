@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="DPT-StatApp-Compiler">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/DPT-StatApp-Compiler.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

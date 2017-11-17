@@ -51,15 +51,21 @@ public class DPTStatAppCompiler {
      * the command and secondly a file path. 
      * @param args the command line arguments
      */
+
+    public static boolean shouldCompress(String arg) {
+        return (!arg.equals("dev"));
+    }
+
     public static void main(String[] args) {
-        if(args.length != 2) {
+        if(args.length != 3) {
             printUsage();
             System.exit(1);
-        } else {
-            String filepath = checkAndFormatFilePath(args[1]);
-            if(filepath == null) {
-                System.exit(1);
-            }
+        }
+        else {
+
+            String filepath = checkAndFormatFilePath(args[2]);
+
+            if(filepath == null) System.exit(1);
             
             switch(args[0]) {
                 case "generate" :
@@ -67,7 +73,7 @@ public class DPTStatAppCompiler {
                     System.exit(gen.generateApp() ? 0 : 1);
                     break;
                 case "compile" :
-                    AppCompiler comp = new AppCompiler(filepath);
+                    AppCompiler comp = new AppCompiler(filepath, shouldCompress(args[1]));
                     System.exit(comp.compileApp() ? 0 : 1);
                     break;
                 case "clean" : 
