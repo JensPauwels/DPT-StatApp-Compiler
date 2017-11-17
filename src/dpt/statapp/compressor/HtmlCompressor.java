@@ -40,6 +40,7 @@ public class HtmlCompressor implements Compressor {
     @Override
     public String compress(String input) {
         com.googlecode.htmlcompressor.compressor.HtmlCompressor comp = new com.googlecode.htmlcompressor.compressor.HtmlCompressor();
+        comp.setRemoveComments(false);
         return comp.compress(input);
     }
     

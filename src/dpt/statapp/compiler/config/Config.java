@@ -52,4 +52,11 @@ public class Config {
     
     public static String URI_FIRST_SLASH = "";
     
+    /**
+     * Handle locale files as Javascript files and include
+     * them in the global script file. Used in the DPTechnics
+     * products.
+     */
+    public static boolean LOCALES_AS_GLOBAL_JS = true;
+    
 }

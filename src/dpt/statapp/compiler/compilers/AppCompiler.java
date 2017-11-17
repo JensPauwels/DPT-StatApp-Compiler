@@ -102,26 +102,31 @@ public class AppCompiler {
             dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.FONT_DIRECTORY);
             Files.walkFileTree(Paths.get(filepath + Config.FONT_DIRECTORY), new DirCopyVisitor(dir));
             
-            /* Copy and compress locales */
-            dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY);
-            
-            Compressor compressor = new JavascriptCompressor();
-            
-            try(DirectoryStream<Path> localeStream = Files.newDirectoryStream(Paths.get(filepath + Config.LOCALES_DIRECTORY))) {      
-                /* Copy and compress all javascript locales */
-                for(Path locale :  localeStream) {
-                    OutFormatter.printfLn("Compressing locale: %s", locale.getFileName().toString());
-                    String localeContents = FileHelpers.fileToString(locale);
-                    localeContents = compressor.compress(localeContents);
-                    Files.write(new File(dir.toFile(), locale.getFileName().toString()).toPath(), localeContents.getBytes());
+            /* Copy and compress locales if they are not inluded in global JS */
+            if(!Config.LOCALES_AS_GLOBAL_JS) {
+                dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY);
+
+                Compressor compressor = new JavascriptCompressor();
+
+                try(DirectoryStream<Path> localeStream = Files.newDirectoryStream(Paths.get(filepath + Config.LOCALES_DIRECTORY))) {      
+                    /* Copy and compress all javascript locales */
+                    for(Path locale :  localeStream) {
+                        OutFormatter.printfLn("Compressing locale: %s", locale.getFileName().toString());
+                        String localeContents = FileHelpers.fileToString(locale);
+                        localeContents = compressor.compress(localeContents);
+                        Files.write(new File(dir.toFile(), locale.getFileName().toString()).toPath(), localeContents.getBytes());
+                    }
+                } catch (Exception ex) {
+                    ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not copy all locale files.");
+                    ex.printStackTrace(System.err);
+                    return false;
                 }
-            } catch (Exception ex) {
-                ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not copy all locale files.");
-                ex.printStackTrace(System.err);
-                return false;
+                
+                Files.walkFileTree(Paths.get(filepath + Config.LOCALES_DIRECTORY), new DirCopyVisitor(Paths.get(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY)));
+            } else {
+                OutFormatter.printLn("Skipping separated locale compressing and copying as the locales are integrated in the global script file.");
             }
             
-            Files.walkFileTree(Paths.get(filepath + Config.LOCALES_DIRECTORY), new DirCopyVisitor(Paths.get(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LOCALES_DIRECTORY)));
         } catch (IOException ex) {
             ErrorFormatter.writeStringError(ErrorType.WARNING, "Could not copy static content directories to app:");
             ex.printStackTrace(System.err);

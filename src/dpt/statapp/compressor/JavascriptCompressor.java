@@ -43,6 +43,7 @@ public class JavascriptCompressor implements Compressor {
     public String compress(String input) {
         YuiJavaScriptCompressor comp = new YuiJavaScriptCompressor();
         return comp.compress(input);
+        //return input;
     }
     
 }

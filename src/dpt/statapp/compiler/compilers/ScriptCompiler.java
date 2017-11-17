@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,6 +131,7 @@ public class ScriptCompiler implements Compiler{
                     /* The file is found, add it to this files unique set */
                     fileScripts.add(stmt.getArgs()[0]); 
                     allScripts.add(stmt.getArgs()[0]);
+                    OutFormatter.printLn("Adding script to scriptset: " + stmt.getArgs()[0]);
                     
                     /* Keep the lowest order */
                     int order = Integer.parseInt(stmt.getArgs()[1]);
@@ -202,6 +204,7 @@ public class ScriptCompiler implements Compiler{
                             cursor = closing_tag + 2;
                         } else {
                             /* Import global script */
+                            OutFormatter.printLn("Including global script...");
                             String scriptContent = "<script src=\"" + Config.URI_FIRST_SLASH + Config.SCRIPT_DIRECTORY + "/globalscript.js\"></script>";
                             result.append(sourceContent.substring(cursor, matchIndex - 1));
                             result.append(scriptContent);
@@ -301,13 +304,16 @@ public class ScriptCompiler implements Compiler{
 
             /* If the script is present in all sets it's global */
             for(Set<String> set : allScriptSets) {
+                OutFormatter.printf("Checking if script " + script + " is global...");
                 if(!set.contains(script)) {
                     glbl = false;
+                    OutFormatter.printLn("No");
                     break;
                 }
             }
 
             if(glbl) {
+                OutFormatter.printLn("Yes");
                 globalScripts.add(script);
                 OutFormatter.printLn("Found global script: " + script);
             }
@@ -347,6 +353,20 @@ public class ScriptCompiler implements Compiler{
                 }
             }
             
+            /* Add locales if asked */
+            try(DirectoryStream<Path> localeStream = Files.newDirectoryStream(Paths.get(filePath + Config.LOCALES_DIRECTORY))) {      
+                /* Add all locales to global script */
+                for(Path locale :  localeStream) {
+                    OutFormatter.printfLn("Adding locale '%s' to global script", locale.getFileName().toString());
+                    String localeContents = FileHelpers.fileToString(locale);
+                    globalScriptDocument.append(localeContents);
+                }
+            } catch (Exception ex) {
+                ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not copy all locale files.");
+                ex.printStackTrace(System.err);
+                return false;
+            }     
+            
             // Build the global script document 
             for(String script : sortedScripts) {
                 /* Read the script file */
@@ -354,6 +374,7 @@ public class ScriptCompiler implements Compiler{
                 globalScriptDocument.append(contents);
             }
             
+            /* Construct the javascript compressor */
             Compressor comp = new JavascriptCompressor();
             
             for(String script : allScripts) {
