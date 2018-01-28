@@ -65,14 +65,16 @@ import java.util.Set;
  */
 public class ScriptCompiler implements Compiler{
     /* The file path of the app */ 
-    String filePath;
+    private String filePath;
+    private Boolean shouldCompress;
     
     /**
      * Construct a new ScriptCompiler. 
      * @param filePath the file path of the application
      */
-    public ScriptCompiler(String filePath) {
+    public ScriptCompiler(String filePath, Boolean shouldCompress) {
         this.filePath = filePath;
+        this.shouldCompress = shouldCompress;
     }
     
     /* A list containing all the sets of scripts used in the HTML documents */
@@ -205,7 +207,7 @@ public class ScriptCompiler implements Compiler{
                         } else {
                             /* Import global script */
                             OutFormatter.printLn("Including global script...");
-                            String scriptContent = "<script src=\"" + Config.URI_FIRST_SLASH + Config.SCRIPT_DIRECTORY + "/globalscript.js\"></script>";
+                            String scriptContent = "<script src=\"" + Config.URI_FIRST_SLASH +"assets/js/globalscript.js\"></script>";
                             result.append(sourceContent.substring(cursor, matchIndex - 1));
                             result.append(scriptContent);
                             cursor = closing_tag + 2;
@@ -213,7 +215,7 @@ public class ScriptCompiler implements Compiler{
                         }
                     } else {
                         /* This is a page specific script, import directly */
-                        String scriptContent = "<script src=\"" + Config.URI_FIRST_SLASH + Config.SCRIPT_DIRECTORY + "/" + stmt.getArgs()[0] + "\"></script>";
+                        String scriptContent = "<script src=\"" + Config.URI_FIRST_SLASH + "assets/js/" + stmt.getArgs()[0] + "\"></script>";
                         result.append(sourceContent.substring(cursor, matchIndex - 1));
                         result.append(scriptContent);
                         cursor = closing_tag + 2;
@@ -322,7 +324,7 @@ public class ScriptCompiler implements Compiler{
 
         /* Generate script documents */
         OutFormatter.printLn("Generating script documents");
-        Path outdir = FileHelpers.createDirectoryIfNotExists(filePath + Config.OUTPUT_DIRECTORY + "/" + Config.SCRIPT_DIRECTORY);
+        Path outdir = FileHelpers.createDirectoryIfNotExists(filePath + Config.OUTPUT_DIRECTORY + "/assets/js/");
 
         /* Buffer for global script document */
         StringBuilder globalScriptDocument = new StringBuilder();
@@ -383,14 +385,21 @@ public class ScriptCompiler implements Compiler{
                 
                 /* Compress Javascript */
                 OutFormatter.printLn("Compressing Javascript " + script);
+
+
                 String compressed = comp.compress(contents);
+
+                System.out.println(compressed);
                 
                 Files.write(new File(outdir.toFile(), script).toPath(), compressed.getBytes());
             }
 
             /* Write global script file */
             OutFormatter.printLn("Compressing Javascript globalscript.js");
-            String compressed = comp.compress(globalScriptDocument.toString());
+            String compressed;
+            if (shouldCompress) compressed = comp.compress(globalScriptDocument.toString());
+            else compressed = globalScriptDocument.toString();
+
             Files.write(new File(outdir.toFile(), "globalscript.js").toPath(), compressed.getBytes());
         } catch (IOException ex) {
             ErrorFormatter.writeStringError(ErrorType.FATAL, "Could not save script to output folder:");

@@ -104,10 +104,7 @@ public class AppGenerator {
             return false;
         }
         
-        /* Create licences directory */
-        if(!createDirectory("licences", Config.LICENCE_DIRECTORY)) {
-            return false;
-        }
+
         
         /* Create scripts directory */
         if(!createDirectory("scripts", Config.SCRIPT_DIRECTORY)) {

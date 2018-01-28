@@ -54,14 +54,18 @@ import java.nio.file.Paths;
  */
 public class AppCompiler {
     /* The working directory of the DPTStatApp */
-    protected String filepath;
+    private String filepath;
+    protected Boolean shouldCompress;
     
     /**
      * Construct a new AppCompiler instance. 
      * @param filepath the filepath to work in. 
      */
-    public AppCompiler(String filepath) {
+    public AppCompiler(String filepath, Boolean shouldCompress) {
+        this.shouldCompress = shouldCompress;
         this.filepath = filepath;
+
+        System.out.println(shouldCompress+ "compressing");
     }
     
     /**
@@ -83,7 +87,7 @@ public class AppCompiler {
         }
         
         /* Execute stage 3 of the compiler and parse scripts */
-        Compiler scriptComp = new ScriptCompiler(filepath);
+        Compiler scriptComp = new ScriptCompiler(filepath, shouldCompress);
         if(!scriptComp.run()) {
             return false;
         }
@@ -96,8 +100,15 @@ public class AppCompiler {
             Path dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.IMAGE_DIRECTORY);
             Files.walkFileTree(Paths.get(filepath + Config.IMAGE_DIRECTORY), new DirCopyVisitor(dir));
             
-            dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LICENCE_DIRECTORY);
-            Files.walkFileTree(Paths.get(filepath + Config.LICENCE_DIRECTORY), new DirCopyVisitor(dir));
+//            dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.LICENCE_DIRECTORY);
+//            Files.walkFileTree(Paths.get(filepath + Config.LICENCE_DIRECTORY), new DirCopyVisitor(dir));
+
+            String licensePath = filepath + "/license";
+            String licenseDest = filepath + Config.OUTPUT_DIRECTORY + "/license";
+
+            if (!Files.exists(Paths.get(licenseDest))) Files.copy(Paths.get(licensePath), Paths.get(licenseDest));
+
+
             
             dir = FileHelpers.createDirectoryIfNotExists(filepath + Config.OUTPUT_DIRECTORY + "/" + Config.FONT_DIRECTORY);
             Files.walkFileTree(Paths.get(filepath + Config.FONT_DIRECTORY), new DirCopyVisitor(dir));
