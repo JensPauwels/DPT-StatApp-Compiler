@@ -54,7 +54,8 @@ import java.nio.file.Paths;
  */
 public class AppCompiler {
     /* The working directory of the DPTStatApp */
-    private String filepath;
+
+    protected String filepath;
     protected Boolean shouldCompress;
     
     /**
